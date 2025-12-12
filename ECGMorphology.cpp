@@ -14,6 +14,17 @@ const float64 t_wave_amplitude_scale = 0.35;
 
 // QRS Complex
 const float64 qrs_amplitude_scale = 1.2;
+const float64 q_wave_scale_factor = -0.25;
+const float64 r_wave_scale_factor = 1.0;
+const float64 s_wave_scale_factor = -0.35;
+
+const float64 q_wave_center = 0.20;
+const float64 r_wave_center = 0.45;
+const float64 s_wave_center = 0.70;
+
+const float64 q_wave_width = 0.06;
+const float64 r_wave_width = 0.04;
+const float64 s_wave_width = 0.08;
 
 // Intervals
 const float64 st_segment_gap_s = 0.04;
@@ -47,11 +58,51 @@ Heart_vector calculate_component_vector(const Ecg_component* component, float64 
     return scale(component->shape_params.direction, component->shape_params.scale * mag);
 }
 
+static Heart_vector calculate_gaussian_vector(
+    const Ecg_component* component,
+    float64 local_time,
+    float64 center,
+    float64 width,
+    float64 scale_factor)
+{
+    const float64 u = local_time / component->duration_s;
+    const float64 diff = (u - center) / width;
+    const float64 mag = std::exp(-(diff * diff));
+    return scale(component->shape_params.direction, component->shape_params.scale * scale_factor * mag);
+}
+
+static Heart_vector calculate_qrs_vector(const Ecg_component* component, float64 time)
+{
+    if (!component->is_active)
+    {
+        return {0.0, 0.0, 0.0};
+    }
+
+    const float64 local_time = time - component->start_time_s;
+    if (local_time < 0.0 || local_time > component->duration_s)
+    {
+        return {0.0, 0.0, 0.0};
+    }
+
+    const float64 zero_tolerance = 1e-9;
+    if (component->duration_s <= zero_tolerance)
+    {
+        return {0.0, 0.0, 0.0};
+    }
+
+    Heart_vector result = {0.0, 0.0, 0.0};
+    result = add(result, calculate_gaussian_vector(component, local_time, q_wave_center, q_wave_width, q_wave_scale_factor));
+    result = add(result, calculate_gaussian_vector(component, local_time, r_wave_center, r_wave_width, r_wave_scale_factor));
+    result = add(result, calculate_gaussian_vector(component, local_time, s_wave_center, s_wave_width, s_wave_scale_factor));
+
+    return result;
+}
+
 Heart_vector calculate_heart_vector(const Ecg_morphology* morphology, float64 local_time)
 {
     Heart_vector v = {0.0, 0.0, 0.0};
     v = add(v, calculate_component_vector(&morphology->p_wave, local_time));
-    v = add(v, calculate_component_vector(&morphology->qrs_complex, local_time));
+    v = add(v, calculate_qrs_vector(&morphology->qrs_complex, local_time));
     v = add(v, calculate_component_vector(&morphology->t_wave, local_time));
     return v;
 }
