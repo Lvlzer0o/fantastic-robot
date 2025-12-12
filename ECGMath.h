@@ -23,6 +23,7 @@ Heart_vector add(const Heart_vector& a, const Heart_vector& b);
 Heart_vector scale(const Heart_vector& v, float64 k);
 Heart_vector normalize(const Heart_vector& v);
 float64 dot_product(const Heart_vector& a, const Heart_vector& b);
+float64 project_to_lead(const Heart_vector& heart_vector, const Heart_vector& lead_vector);
 
 // Defines the viewing angle for the standard 12 leads.
 struct Standard_leads
