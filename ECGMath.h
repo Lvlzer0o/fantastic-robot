@@ -4,7 +4,6 @@
 #include "Types.h"
 #include <cmath>
 
-
 // Rule 30: The #define pre-processor directive shall not be used to define
 // constant values. Rule 52: The name of a constant will be composed of
 // lowercase letters.
@@ -46,6 +45,12 @@ Heart_vector add(const Heart_vector &a, const Heart_vector &b);
 Heart_vector scale(const Heart_vector &v, float64 k);
 Heart_vector normalize(const Heart_vector &v);
 float64 dot_product(const Heart_vector &a, const Heart_vector &b);
+
+// Projection of vector 'v' onto unit vector 'lead' is simply the dot product.
+inline float64 project_to_lead(const Heart_vector &v,
+                               const Heart_vector &lead) {
+  return dot_product(v, lead);
+}
 
 // Defines the viewing angle for the standard 12 leads.
 struct Standard_leads {
