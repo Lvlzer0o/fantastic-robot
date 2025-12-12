@@ -18,6 +18,30 @@ struct Heart_vector
     float64 z;
 };
 
+// Compile-time helpers to support deterministic, normalized lead definitions.
+constexpr float64 square_value(float64 v)
+{
+    return v * v;
+}
+
+constexpr float64 sqrt_newton(float64 x, float64 current, float64 previous)
+{
+    return (current == previous) ? current : sqrt_newton(x, 0.5 * (current + (x / current)), current);
+}
+
+constexpr float64 sqrt_constexpr(float64 x)
+{
+    return (x <= 0.0) ? 0.0 : sqrt_newton(x, (x > 1.0) ? x : 1.0, 0.0);
+}
+
+constexpr Heart_vector normalize_constexpr(float64 x, float64 y, float64 z)
+{
+    const float64 magnitude = sqrt_constexpr(square_value(x) + square_value(y) + square_value(z));
+    return (magnitude <= 0.0)
+        ? Heart_vector{0.0, 0.0, 0.0}
+        : Heart_vector{x / magnitude, y / magnitude, z / magnitude};
+}
+
 // Rule 51: Function names will be composed entirely of lowercase letters.
 Heart_vector add(const Heart_vector& a, const Heart_vector& b);
 Heart_vector scale(const Heart_vector& v, float64 k);
@@ -30,18 +54,18 @@ struct Standard_leads
 {
     // Rule 52: Constant names are lowercase.
     // Rule 45: Underscore separation.
-    static const Heart_vector lead_i;
-    static const Heart_vector lead_ii;
-    static const Heart_vector lead_iii;
-    static const Heart_vector lead_avr;
-    static const Heart_vector lead_avl;
-    static const Heart_vector lead_avf;
-    static const Heart_vector lead_v1;
-    static const Heart_vector lead_v2;
-    static const Heart_vector lead_v3;
-    static const Heart_vector lead_v4;
-    static const Heart_vector lead_v5;
-    static const Heart_vector lead_v6;
+    inline static constexpr Heart_vector lead_i   = normalize_constexpr(1.0, 0.0, 0.0);
+    inline static constexpr Heart_vector lead_ii  = normalize_constexpr(0.5, 0.86602540378443864676, 0.0);
+    inline static constexpr Heart_vector lead_iii = normalize_constexpr(-0.5, 0.86602540378443864676, 0.0);
+    inline static constexpr Heart_vector lead_avr = normalize_constexpr(-0.86602540378443864676, -0.5, 0.0);
+    inline static constexpr Heart_vector lead_avl = normalize_constexpr(0.86602540378443864676, -0.5, 0.0);
+    inline static constexpr Heart_vector lead_avf = normalize_constexpr(0.0, 1.0, 0.0);
+    inline static constexpr Heart_vector lead_v1 = normalize_constexpr(-0.6, 0.0,  0.8);
+    inline static constexpr Heart_vector lead_v2 = normalize_constexpr(-0.3, 0.0,  0.95);
+    inline static constexpr Heart_vector lead_v3 = normalize_constexpr(0.0, 0.0,  1.0);
+    inline static constexpr Heart_vector lead_v4 = normalize_constexpr(0.3, 0.0,  0.95);
+    inline static constexpr Heart_vector lead_v5 = normalize_constexpr(0.6, 0.0,  0.8);
+    inline static constexpr Heart_vector lead_v6 = normalize_constexpr(0.9, 0.0,  0.4);
 };
 
 #endif // ECG_MATH_H

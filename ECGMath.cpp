@@ -39,26 +39,3 @@ float64 project_to_lead(const Heart_vector& heart_vector, const Heart_vector& le
 {
     return dot_product(heart_vector, lead_vector);
 }
-
-// --- Standard_leads constant definitions ---
-
-// Helper function to avoid repetition, kept local to this translation unit.
-static Heart_vector frontal(float64 degrees)
-{
-    const float64 r = degrees * pi_value / 180.0;
-    return normalize({std::cos(r), std::sin(r), 0.0});
-}
-
-const Heart_vector Standard_leads::lead_i   = frontal(0.0);
-const Heart_vector Standard_leads::lead_ii  = frontal(60.0);
-const Heart_vector Standard_leads::lead_iii = frontal(120.0);
-const Heart_vector Standard_leads::lead_avr = frontal(-150.0);
-const Heart_vector Standard_leads::lead_avl = frontal(-30.0);
-const Heart_vector Standard_leads::lead_avf = frontal(90.0);
-
-const Heart_vector Standard_leads::lead_v1 = normalize({-0.6, 0.0,  0.8});
-const Heart_vector Standard_leads::lead_v2 = normalize({-0.3, 0.0,  0.95});
-const Heart_vector Standard_leads::lead_v3 = normalize({ 0.0, 0.0,  1.0});
-const Heart_vector Standard_leads::lead_v4 = normalize({ 0.3, 0.0,  0.95});
-const Heart_vector Standard_leads::lead_v5 = normalize({ 0.6, 0.0,  0.8});
-const Heart_vector Standard_leads::lead_v6 = normalize({ 0.9, 0.0,  0.4});
