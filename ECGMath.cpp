@@ -35,6 +35,11 @@ float64 dot_product(const Heart_vector& a, const Heart_vector& b)
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
+float64 project_onto_lead(const Heart_vector& heart_vector, const Heart_vector& lead_vector)
+{
+    return dot_product(heart_vector, lead_vector);
+}
+
 
 // --- Standard_leads constant definitions ---
 
